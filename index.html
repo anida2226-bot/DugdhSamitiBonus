@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>दुग्ध सहकारी समिति - दीपावली बोनस कैलकुलेटर</title>
+<style>
+*{box-sizing:border-box;font-family:Arial,"Noto Sans Devanagari",sans-serif}
+body{margin:0;padding:12px;background:#f3f6fa;color:#222}
+.container{max-width:900px;margin:auto;background:#fff;padding:18px;border-radius:12px;box-shadow:0 3px 15px #0001}
+h2{text-align:center;color:#1a4f8b;margin:0 0 5px}.app-logo{display:block;width:min(100%,360px);max-height:220px;object-fit:contain;margin:0 auto 10px;border-radius:10px}
+.subtitle{text-align:center;color:#555;font-size:13px;margin:0 0 16px}
+.settings{display:flex;justify-content:space-around;gap:8px;flex-wrap:wrap;background:#eef5fc;padding:10px;border-left:4px solid #1a4f8b;border-radius:8px;margin-bottom:16px}
+.grid{display:grid;grid-template-columns:1fr 1.5fr;gap:10px}
+.group{margin-bottom:12px}
+label{display:block;font-weight:bold;font-size:14px;margin-bottom:5px}
+input{width:100%;padding:11px;border:1px solid #c5d0dc;border-radius:8px;font-size:16px}
+button{border:0;border-radius:8px;padding:12px;font-size:15px;font-weight:bold;cursor:pointer}
+button:active{transform:scale(.99)}
+.buttons,.actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px}
+.green{background:#218838;color:#fff}.blue{background:#1a4f8b;color:#fff}.cyan{background:#0891b2;color:#fff}.excel{background:#188038;color:#fff}.gray{background:#e2e8f0;color:#334155}.red{background:#c62828;color:white}
+#notice{display:none;padding:10px;margin:10px 0;border-radius:7px;background:#dcfce7;color:#166534}
+#result{display:none;background:#fffdf5;border:2px dashed #f59e0b;border-radius:8px;padding:12px;margin-top:14px}
+.resultline{display:flex;justify-content:space-between;gap:12px;margin:6px 0}
+.tablewrap{overflow-x:auto;margin-top:12px}
+table{width:100%;border-collapse:collapse;font-size:13px;min-width:580px}
+th,td{border:1px solid #cbd5e1;padding:8px;text-align:center}
+th{background:#1a4f8b;color:white}
+td.name{text-align:left}
+tfoot{font-weight:bold;background:#eef5fc}
+#listSection{display:none;margin-top:22px}
+.reporthead{text-align:center;border-bottom:2px solid #1a4f8b;padding-bottom:8px;margin-bottom:12px}
+@media(max-width:520px){.grid{grid-template-columns:1fr}.buttons,.actions{grid-template-columns:1fr}.reporthead h3{font-size:17px}}
+@media print{
+ body{padding:0;background:#fff}.container{max-width:none;box-shadow:none;padding:0}
+ .settings,.entryarea,#notice,#result,.actions,.deletecol,.no-print{display:none!important}
+ #listSection{display:block!important;margin-top:0}
+ table{min-width:0;width:100%;font-size:11px}
+ th{background:#eee!important;color:#000!important;print-color-adjust:exact}
+ th,td{padding:5px}
+ .reporthead{color:#000}
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <img class="app-logo" src="diwali_bonus_logo.jpg" alt="Diwali Bonus लोगो">
+  <h2>दुग्ध सहकारी समिति</h2>
+  <p class="subtitle">दीपावली दर अंतर (प्रोत्साहन बोनस) कैलकुलेटर</p>
+  <div class="settings"><span>दिन: <b>365</b></span><span>अवधि: <b>21 दिन</b></span><span>दर: <b>₹4.00 / लीटर</b></span></div>
+  <div id="notice" role="status"></div>
+
+  <div class="entryarea">
+    <div class="grid">
+      <div class="group"><label for="farmerCode">खाता / कोड क्र.:</label><input id="farmerCode" type="text" placeholder="उदा. 102" autocomplete="off"></div>
+      <div class="group"><label for="farmerName">उत्पादक का नाम:</label><input id="farmerName" type="text" placeholder="उदा. रामलाल शर्मा" autocomplete="off"></div>
+    </div>
+    <div class="group"><label for="totalMilk">वर्ष का कुल दूध (लीटर): *</label><input id="totalMilk" type="number" min="0.01" step="0.01" placeholder="उदा. 4500"></div>
+    <div class="buttons">
+      <button type="button" class="green" id="calcBtn">हिसाब करें</button>
+      <button type="button" class="blue" id="addBtn">लिस्ट में जोड़ें</button>
+    </div>
+    <div id="result">
+      <div class="resultline"><span>प्रतिदिन औसत दूध (÷365):</span><b id="dailyAvg">0.00 ली.</b></div>
+      <div class="resultline"><span>21 दिन का दूध (×21):</span><b id="days21Milk">0.00 ली.</b></div>
+      <div class="resultline"><span>कुल बोनस राशि (× ₹4):</span><b id="bonusAmount">₹0.00</b></div>
+    </div>
+  </div>
+
+  <section id="listSection">
+    <div id="printableReport">
+      <div class="reporthead">
+        <h3 style="margin:0;color:#1a4f8b">दुग्ध सहकारी समिति</h3>
+        <div><b>दीपावली दर अंतर (बोनस) वितरण विवरण</b></div>
+        <small>आधार: 21 दिन (365 दिन) | दर: ₹4.00 प्रति लीटर</small>
+      </div>
+      <div class="tablewrap">
+        <table id="bonusTable">
+          <thead><tr><th>क्र.</th><th>खाता क्र.</th><th style="text-align:left">उत्पादक का नाम</th><th>कुल दूध (ली.)</th><th>बोनस (₹)</th><th class="deletecol no-print">हटाएं</th></tr></thead>
+          <tbody id="tableBody"></tbody>
+          <tfoot><tr><td colspan="3" style="text-align:right">कुल योग:</td><td id="grandTotalMilk">0.00 ली.</td><td id="grandTotalBonus">₹0.00</td><td class="deletecol no-print"></td></tr></tfoot>
+        </table>
+      </div>
+    </div>
+    <div class="actions no-print">
+      <button type="button" class="blue" id="printBtn">🖨️ प्रिंट / PDF सेव करें</button>
+      <button type="button" class="excel" id="csvBtn">📊 Excel / CSV डाउनलोड</button>
+      <button type="button" class="cyan" id="htmlBtn">📄 रिपोर्ट HTML डाउनलोड</button>
+      <button type="button" class="gray" id="clearBtn">🗑️ पूरी लिस्ट साफ़ करें</button>
+    </div>
+  </section>
+</div>
+
+<script>
+(function(){
+'use strict';
+const STORAGE_KEY='dairyDiwaliBonusMembers_v1';
+let members=[];
+const $=id=>document.getElementById(id);
+function notice(message,isError=false){
+  const box=$('notice'); box.textContent=message;
+  box.style.background=isError?'#fee2e2':'#dcfce7';
+  box.style.color=isError?'#991b1b':'#166534';
+  box.style.display='block';
+  clearTimeout(notice.timer); notice.timer=setTimeout(()=>box.style.display='none',5000);
+}
+function escapeHTML(value){
+  return String(value).replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+}
+function calculate(){
+  const milk=parseFloat($('totalMilk').value);
+  if(!Number.isFinite(milk)||milk<=0){notice('कृपया कुल दूध की सही मात्रा (0 से अधिक) दर्ज करें।',true);$('totalMilk').focus();return null;}
+  const daily=milk/365, milk21=daily*21, bonus=milk21*4;
+  return {milk,daily,milk21,bonus};
+}
+function showCalculation(){
+  const r=calculate(); if(!r)return;
+  $('dailyAvg').textContent=r.daily.toFixed(2)+' ली.';
+  $('days21Milk').textContent=r.milk21.toFixed(2)+' ली.';
+  $('bonusAmount').textContent='₹ '+r.bonus.toFixed(2);
+  $('result').style.display='block';
+}
+function save(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(members));}catch(e){notice('इस ब्राउज़र में डेटा सेव नहीं हो पाया। कृपया CSV डाउनलोड करके बैकअप रखें।',true);}}
+function load(){try{const saved=localStorage.getItem(STORAGE_KEY);if(saved){const parsed=JSON.parse(saved);if(Array.isArray(parsed))members=parsed;}}catch(e){members=[];}render();}
+function addMember(){
+  const r=calculate();if(!r)return;
+  const next=members.length+1;
+  members.push({code:$('farmerCode').value.trim()||String(next),name:$('farmerName').value.trim()||('उत्पादक '+next),milk:r.milk,bonus:Math.round(r.bonus*100)/100});
+  save();render();
+  $('farmerCode').value='';$('farmerName').value='';$('totalMilk').value='';$('result').style.display='none';$('farmerCode').focus();
+  notice('सदस्य सूची में जोड़ दिया गया।');
+}
+function render(){
+  const body=$('tableBody');body.replaceChildren();
+  let milkTotal=0,bonusTotal=0;
+  members.forEach((m,i)=>{
+    milkTotal+=Number(m.milk)||0;bonusTotal+=Number(m.bonus)||0;
+    const tr=document.createElement('tr');
+    [String(i+1),String(m.code),String(m.name),(Number(m.milk)||0).toFixed(2),'₹ '+(Number(m.bonus)||0).toFixed(2)].forEach((value,j)=>{
+      const td=document.createElement('td');td.textContent=value;if(j===2)td.className='name';if(j===1)td.style.fontWeight='bold';tr.appendChild(td);
+    });
+    const td=document.createElement('td');td.className='deletecol no-print';
+    const btn=document.createElement('button');btn.type='button';btn.className='red';btn.textContent='हटाएं';btn.style.padding='5px 8px';btn.addEventListener('click',()=>{members.splice(i,1);save();render();notice('सदस्य हटाया गया।');});td.appendChild(btn);tr.appendChild(td);body.appendChild(tr);
+  });
+  $('grandTotalMilk').textContent=milkTotal.toFixed(2)+' ली.';
+  $('grandTotalBonus').textContent='₹ '+bonusTotal.toFixed(2);
+  $('listSection').style.display=members.length?'block':'none';
+}
+function csvCell(value){return '"'+String(value).replace(/"/g,'""')+'"';}
+function downloadBlob(blob,filename){
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download=filename;a.style.display='none';
+  document.body.appendChild(a);
+  try{a.click();notice('डाउनलोड शुरू किया गया। यदि फाइल न दिखे तो ब्राउज़र के Downloads फ़ोल्डर में देखें।');}
+  catch(e){notice('डाउनलोड शुरू नहीं हो पाया। Chrome में यह फाइल खोलकर दोबारा प्रयास करें।',true);}
+  setTimeout(()=>{URL.revokeObjectURL(url);a.remove();},10000);
+}
+function downloadCSV(){
+  if(!members.length){notice('डाउनलोड करने के लिए पहले लिस्ट में सदस्य जोड़ें।',true);return;}
+  const rows=[['क्र.','खाता क्र.','उत्पादक का नाम','कुल दूध (लीटर)','बोनस राशि (₹)']];
+  members.forEach((m,i)=>rows.push([i+1,m.code,m.name,Number(m.milk).toFixed(2),Number(m.bonus).toFixed(2)]));
+  rows.push(['','','कुल योग',members.reduce((s,m)=>s+Number(m.milk||0),0).toFixed(2),members.reduce((s,m)=>s+Number(m.bonus||0),0).toFixed(2)]);
+  const csv='\uFEFF'+rows.map(row=>row.map(csvCell).join(',')).join('\r\n');
+  downloadBlob(new Blob([csv],{type:'text/csv;charset=utf-8;'}),'दुग्ध_समिति_बोनस_सूची.csv');
+}
+function reportHTML(){
+  const rows=members.map((m,i)=>`<tr><td>${i+1}</td><td>${escapeHTML(m.code)}</td><td>${escapeHTML(m.name)}</td><td>${Number(m.milk).toFixed(2)} ली.</td><td>₹ ${Number(m.bonus).toFixed(2)}</td></tr>`).join('');
+  const milkTotal=members.reduce((s,m)=>s+Number(m.milk||0),0),bonusTotal=members.reduce((s,m)=>s+Number(m.bonus||0),0);
+  return `<!DOCTYPE html><html lang="hi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>दुग्ध समिति बोनस रिपोर्ट</title><style>body{font-family:Arial,sans-serif;padding:18px;color:#111}h2,h4,p{text-align:center;margin:5px}table{width:100%;border-collapse:collapse;margin-top:18px;font-size:13px}th,td{border:1px solid #333;padding:7px;text-align:center}th{background:#eee}.left{text-align:left}@media print{.no-print{display:none}}</style></head><body><div class="no-print" style="padding:10px;background:#eef5fc;text-align:center;margin-bottom:15px"><b>PDF बनाने के लिए:</b> Print दबाएँ और “Save as PDF” चुनें।<br><button onclick="window.print()" style="margin-top:8px;padding:8px 12px">प्रिंट / PDF सेव करें</button></div><h2>दुग्ध सहकारी समिति</h2><h4>दीपावली दर अंतर (बोनस) वितरण सूची</h4><p>आधार: 21 दिन (365 दिन) | दर: ₹4.00 प्रति लीटर</p><table><thead><tr><th>क्र.</th><th>खाता क्र.</th><th>उत्पादक का नाम</th><th>कुल दूध</th><th>बोनस राशि</th></tr></thead><tbody>${rows}</tbody><tfoot><tr><th colspan="3" style="text-align:right">कुल योग</th><th>${milkTotal.toFixed(2)} ली.</th><th>₹ ${bonusTotal.toFixed(2)}</th></tr></tfoot></table></body></html>`;
+}
+function downloadHTML(){
+  if(!members.length){notice('डाउनलोड करने के लिए पहले लिस्ट में सदस्य जोड़ें।',true);return;}
+  downloadBlob(new Blob([reportHTML()],{type:'text/html;charset=utf-8;'}),'समिति_बोनस_रिपोर्ट.html');
+}
+function printReport(){
+  if(!members.length){notice('प्रिंट करने के लिए पहले लिस्ट में सदस्य जोड़ें।',true);return;}
+  // Direct print can be blocked by some embedded Android WebViews.
+  try{window.print();}catch(e){downloadHTML();notice('प्रिंट नहीं खुला; रिपोर्ट HTML डाउनलोड करने का प्रयास किया गया।',true);}
+}
+function clearAll(){
+  if(!members.length){notice('लिस्ट पहले से खाली है।',true);return;}
+  if(!confirm('क्या आप पूरी सूची हटाना चाहते हैं? यह कार्रवाई वापस नहीं होगी।'))return;
+  members=[];save();render();notice('पूरी सूची साफ़ कर दी गई।');
+}
+$('calcBtn').addEventListener('click',showCalculation);
+$('addBtn').addEventListener('click',addMember);
+$('printBtn').addEventListener('click',printReport);
+$('csvBtn').addEventListener('click',downloadCSV);
+$('htmlBtn').addEventListener('click',downloadHTML);
+$('clearBtn').addEventListener('click',clearAll);
+$('totalMilk').addEventListener('keydown',e=>{if(e.key==='Enter')addMember();});
+load();
+})();
+</script>
+</body>
+</html>

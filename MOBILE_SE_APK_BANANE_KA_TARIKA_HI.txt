@@ -1,0 +1,19 @@
+मोबाइल से APK बनाने का तरीका (लोगो सहित)
+
+इस ZIP में Android Studio प्रोजेक्ट है, तैयार APK नहीं। लोगो ऐप के अंदर जोड़ा गया है।
+
+सबसे आसान मोबाइल तरीका: GitHub Actions (एक बार GitHub अकाउंट चाहिए)
+1. इस ZIP को डाउनलोड करें और फोन में Extract करें।
+2. GitHub पर नया repository बनाएं (उदाहरण: DugdhSamitiBonus)।
+3. Extract किए हुए प्रोजेक्ट की सभी फाइलें/फ़ोल्डर repository में अपलोड करें। ध्यान दें: .github/workflows/build-apk.yml भी अपलोड होना चाहिए।
+4. GitHub repository में Actions टैब खोलें।
+5. "Build Android APK" workflow चुनें और "Run workflow" दबाएं। पहली बार workflow push पर अपने-आप भी चल सकता है।
+6. Build सफल होने पर workflow run खोलें और नीचे Artifacts में "DugdhSamitiBonus-debug-apk" डाउनलोड करें।
+7. ZIP artifact को फोन में Extract करें। app-debug.apk पर टैप करके इंस्टॉल करें। फोन मांगे तो उस ब्राउज़र/फ़ाइल मैनेजर के लिए "Install unknown apps" अनुमति दें।
+
+महत्वपूर्ण:
+- GitHub पर प्रोजेक्ट अपलोड करने के लिए GitHub वेबसाइट/ऐप में लॉगिन आवश्यक है।
+- यह debug APK है; व्यक्तिगत इस्तेमाल/टेस्ट के लिए है।
+- Android 6.0 (API 23) या उससे नए Android के लिए सेट है।
+- ऐप के अंदर लोगो दिखेगा। ऐप आइकन (होम स्क्रीन वाला आइकन) अलग से बदलना हो तो launcher icon resources भी बनानी होंगी।
+- ऐप डेटा फोन के ऐप स्टोरेज में रहेगा; ऐप का डेटा साफ करने या ऐप हटाने पर मिट सकता है।
